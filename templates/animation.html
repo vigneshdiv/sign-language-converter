@@ -1,133 +1,133 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {% block content %}
 <div class="split left">
-	<h2 align="center">Enter Text or Use Mic</h2>
-	<br>
-		<form action="" method="post" align="left">
-		{% csrf_token %}
-					<input type="text" name="sen" class="mytext" id="speechToText" placeholder="">
-					<button type="button" name="button" class="mic" onclick="record()"><img src="{% static 'mic3.png' %}" height="32px" width="38px" /></button>
-		  			&nbsp&nbsp&nbsp&nbsp
-		  			<input type="submit" name="submit" class="submit">
+  <h2 style="text-align: center; margin-bottom: 2rem;">Enter Text</h2>
+  
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="form-actions">
+      <input type="text" name="sen" class="mytext" id="speechToText" placeholder="Type your text here...">
+      <input type="submit" name="submit" class="submit" value="Convert">
+    </div>
+  </form>
 
-		</form>
-		<br>
-		<table cellspacing="20px">
-			<tr>
-				<td class="td">The text that you entered is:</td>
-				<td class="td">{{ text }}</td>
-			</tr>
-			<tr>
-				<td class="td">Key words in sentence:</td>
-				<td class="td">
-				<ul class="td" id="list" align="center">
-  					{% for word in words %}
-    				<li id="{{ i }}" style="margin-right: 8px">{{ word }}</li>
-  					{% endfor %}
-				</ul>
-			</td>
-		</tr>
-	</table></div>
-  <div class="split right">
-  <h2 align="center">Sign Language Animation</h2>
+  <div style="margin-top: 2rem;">
+    <table>
+      <tr>
+        <td class="td" style="font-weight: 600;">Entered text:</td>
+        <td class="td">{{ text }}</td>
+      </tr>
+      <tr>
+        <td class="td" style="font-weight: 600; vertical-align: top; padding-top: 1rem;">Keywords:</td>
+        <td class="td">
+          <ul id="list">
+            {% for word in words %}
+            <li>{{ word }}</li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
 
-	<div style="text-align:center">	&nbsp&nbsp
-  	<button class="submit" onclick="playPause()">Play/Pause</button>
-  	<!--  LETS USE ONLY PLAY PAUSE BUTTON WITH 720 *420 ,IT FITS THE SCREEN ASHISH
-
-  	<button onclick="makeBig()">Big</button>
-  	<button onclick="makeSmall()">Small</button>
-  	<button onclick="makeNormal()">Normal</button>-->
-
-
-  	<video id="videoPlayer" width="600" height="350"  preload="auto" autoplay>
-    	<source src="" type="video/mp4">
-    Your browser does not support HTML5 video.
-  	</video>
-  	</div></div>
-
+<div class="split right">
+  <h2 style="text-align: center; margin-bottom: 2rem;">Sign Language Animation</h2>
+  
+  <div class="video-container">
+    <div class="video-controls">
+      <button id="playPauseBtn" class="submit" onclick="playPause()" style="min-width: 140px;">Play</button>
+    </div>
+    <video id="videoPlayer" width="600" height="350" preload="auto" autoplay>
+      <source src="" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+  </div>
+</div>
 
 <script>
-	//webkitSpeechRecognition api for speech to text conversion
-	function record(){
-		var recognition = new webkitSpeechRecognition();
-		recognition.lang='en-IN';
+// Initialize button text
+document.addEventListener('DOMContentLoaded', function() {
+  var video = document.getElementById("videoPlayer");
+  var btn = document.getElementById("playPauseBtn");
+  
+  // Listen for video play/pause events to update button text
+  video.addEventListener('play', function() {
+    btn.textContent = "Pause";
+  });
+  
+  video.addEventListener('pause', function() {
+    btn.textContent = "Play";
+  });
+});
 
-		recognition.onresult = function(event){
-			console.log(event)
-			document.getElementById('speechToText').value = event.results[0][0].transcript;
-		}
-		recognition.start();
-	 }
-	function play()
-	{
-		var videoSource = new Array();
-		var	videos = document.getElementById("list").getElementsByTagName("li");
-		var j;
-		for(j=0;j<videos.length;j++)
-		{
-			videoSource[j] = "/static/" + videos[j].innerHTML +".mp4";
-		}
+function play()
+{
+  var videoSource = new Array();
+  var videos = document.getElementById("list").getElementsByTagName("li");
+  var j;
+  for(j=0;j<videos.length;j++)
+  {
+    videoSource[j] = "/static/" + videos[j].innerHTML +".mp4";
+  }
 
-		var i = 0; // define i
-		var videoCount = videoSource.length;
+  var i = 0;
+  var videoCount = videoSource.length;
 
-		function videoPlay(videoNum)
-		{
-			document.getElementById("list").getElementsByTagName("li")[videoNum].style.color = "#09edc7";
-			document.getElementById("list").getElementsByTagName("li")[videoNum].style.fontSize = "xx-large";
-			document.getElementById("videoPlayer").setAttribute("src", videoSource[videoNum]);
-	    	document.getElementById("videoPlayer").load();
-	    	document.getElementById("videoPlayer").play();
+  function videoPlay(videoNum)
+  {
+    document.getElementById("list").getElementsByTagName("li")[videoNum].style.background = "#2d2d30";
+    document.getElementById("list").getElementsByTagName("li")[videoNum].style.borderColor = "#858585";
+    document.getElementById("list").getElementsByTagName("li")[videoNum].style.fontSize = "1rem";
+    document.getElementById("list").getElementsByTagName("li")[videoNum].style.fontWeight = "600";
+    document.getElementById("videoPlayer").setAttribute("src", videoSource[videoNum]);
+    document.getElementById("videoPlayer").load();
+    document.getElementById("videoPlayer").play();
+  }
+  
+  document.getElementById('videoPlayer').addEventListener('ended', myHandler, false);
+  
+  if (videoCount > 0) {
+    document.getElementById("list").getElementsByTagName("li")[0].style.background = "#2d2d30";
+    document.getElementById("list").getElementsByTagName("li")[0].style.borderColor = "#858585";
+    document.getElementById("list").getElementsByTagName("li")[0].style.fontSize = "1rem";
+    document.getElementById("list").getElementsByTagName("li")[0].style.fontWeight = "600";
+    videoPlay(0);
+  }
 
-		}
-		document.getElementById('videoPlayer').addEventListener('ended', myHandler, false);
-		document.getElementById("list").getElementsByTagName("li")[0].style.color = "#09edc7";
-		document.getElementById("list").getElementsByTagName("li")[0].style.fontSize = "xx-large";
+  function myHandler()
+  {
+    if (i < videoCount) {
+      document.getElementById("list").getElementsByTagName("li")[i].style.background = "#2d2d30";
+      document.getElementById("list").getElementsByTagName("li")[i].style.borderColor = "#3e3e42";
+      document.getElementById("list").getElementsByTagName("li")[i].style.fontSize = "0.9375rem";
+      document.getElementById("list").getElementsByTagName("li")[i].style.fontWeight = "500";
+    }
+    i++;
+    if (i == videoCount)
+    {
+      document.getElementById("videoPlayer").pause();
+      document.getElementById("playPauseBtn").textContent = "Play";
+    }
+    else
+    {
+      videoPlay(i);
+    }
+  }
+}
 
-		videoPlay(0); // play the video
-
-		function myHandler()
-		{
-	 		document.getElementById("list").getElementsByTagName("li")[i].style.color = "#feda6a";
-			document.getElementById("list").getElementsByTagName("li")[i].style.fontSize = "20px";
-			i++;
-	    	if (i == videoCount)
-	    	{
-	       	    document.getElementById("videoPlayer").pause();
-	    	}
-	     	else
-	     	{
-	        	videoPlay(i);
-	    	}
-		}
-	}
-	/* LETS USE ONLY PLAY PAUSE BUTTON WITH 720 *420 ,IT FITS THE SCREEN
-	function makeBig() {
-	    document.getElementById("videoPlayer").width = 560;
-		document.getElementById("videoPlayer").height = 360;
-	}
-
-	function makeSmall() {
-	    document.getElementById("videoPlayer").width = 320;
-		document.getElementById("videoPlayer").height = 180;
-	}
-
-	function makeNormal() {
-	    document.getElementById("videoPlayer").width = 420;
-		document.getElementById("videoPlayer").height =280;
-	}*/
-	function playPause(){
-  		if (document.getElementById("videoPlayer").paused){
-    		play();}
-  		else{
-    		document.getElementById("videoPlayer").pause();}
-		}
-
-	</script>
-
+function playPause(){
+  var video = document.getElementById("videoPlayer");
+  
+  if (video.paused){
+    play();
+  }
+  else{
+    video.pause();
+  }
+}
+</script>
 
 {% endblock %}

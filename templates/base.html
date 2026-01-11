@@ -1,160 +1,284 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text To Sign Language Converter</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --background: #1e1e1e;
+  --surface: #252526;
+  --surface-light: #2d2d30;
+  --text-primary: #cccccc;
+  --text-secondary: #858585;
+  --border: #3e3e42;
+  --hover: #2a2d2e;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--background);
+  min-height: 100vh;
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+.header {
+  background: var(--surface);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: -0.5px;
+  flex: 1;
+  margin: 0;
+}
+
+.home-button {
+  padding: 0.5rem 1rem;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.home-button:hover {
+  background: var(--hover);
+}
+
+.wrapper {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .center {
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
+  margin: 0 auto;
+  border-radius: 4px;
 }
-#nav {
-  list-style-type: none;
-  margin-top:0;
+
+h2 {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.3px;
+}
+
+.form-style {
+  font-family: inherit;
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.form-style h1,
+.form-style a {
   padding: 0;
-  overflow: hidden;
-  background-color: #feda6a;
-}
-h2
-{
-  color: #feda6a;
-}
-
-.li {
-  float: left;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 2rem 0;
+  color: var(--text-primary);
 }
 
-.li a {
-  display: block;
-  color: #393f4d;
-  font-size: 20px;
-  font-weight: bold;
-  padding: 14px 16px;
+.form-style button,
+.button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: inherit;
   text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
-li a:hover {
-  background-color: #393f4d;
-  color: #feda6a;
-  font-weight: bold;
-}
-.form-style button{
-
-  width: 89%;
-	height:70%;
-	padding: 5%;
-	background: #feda6a;
-	border-bottom: 2px solid #393f4d;;
-	border-top-style: none;
-	border-right-style: none;
-	border-left-style: none;
-	color: #393f4d;
-  font-weight: bold;
-  font-size: 28px;
-  font-family: "Times New Roman";
+.form-style button:hover,
+.button:hover {
+  background: var(--hover);
 }
 
-.form-style button:hover {
-  background-color: #393f4d;
-  color: #feda6a;
-  font-weight: bold;
-}
 .split {
-  height: 100%;
-  width: 50%;
+  height: calc(100vh - 200px);
+  width: calc(50% - 1.5rem);
   position: fixed;
-  z-index: 1;
-  top: 50;
-  overflow-x: hidden;
-  padding-top: 20px;
+  top: 180px;
+  overflow-y: auto;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
 
+.split::-webkit-scrollbar {
+  width: 8px;
+}
+
+.split::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+.split::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.split::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .left {
-  left: 15;
-  border-right: 0px #feda6a solid;
+  left: 2rem;
+  margin-right: 1rem;
 }
 
 .right {
-  right: 0;
-  border-left: 1px #feda6a solid;
+  right: 2rem;
+  margin-left: 1rem;
 }
 
 .mytext {
-    border:1px solid #393f4d;
-    border-right:none;
-    padding:4px;
-    margin:0px;
-    float:left;
-    height:32px;
-    overflow:hidden;
-    line-height:16px;
-    width: 300px;
-    margin-left: 54px;
-  }
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background: var(--surface-light);
+  color: var(--text-primary);
+}
 
-  .mic {
-      border:1px solid #393f4d;
-      background:#feda6a;
-      vertical-align:top;
-      padding:0px;
-      margin:0;
-      float:left;
-      height:42px;
-      overflow:hidden;
-      width:5em;
-      text-align:center;
-      line-height:16px;
-  }
-  
+.mytext:focus {
+  border-color: var(--text-secondary);
+}
 
 .submit {
-    border:1px solid #393f4d;
-    height: 42px;
-    width: 160px;
-    text-align: center;
-    background-color: #feda6a;
-    color: #393f4d;
-    font-weight: bold;
-    font-size: 24px;
-    font-family: "Times New Roman";
-    vertical-align:top;
+  border: 1px solid var(--border);
+  height: auto;
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  background: var(--surface-light);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: inherit;
+  width: auto;
+  min-width: 120px;
 }
+
 .submit:hover {
-  background-color: #393f4d;
-  color: #feda6a;
-  font-weight: bold;
+  background: var(--hover);
 }
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.form-actions .mytext {
+  width: 100%;
+  margin-bottom: 0;
+}
+
 .td {
-  color: #feda6a;
-  font-weight: bold;
-  font-size: 20px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 0;
 }
 
-body
-{
-  background-color: #404040;
-  overflow-y: auto;
+table {
+  width: 100%;
+  margin-top: 1rem;
 }
 
-.form-style{
-	font: 95% Arial, Helvetica, sans-serif;
-	max-width: 400px;
-	margin: 10px auto;
-	padding: 16px;
+table td {
+  padding: 0.75rem 0;
+  vertical-align: top;
+}
 
+#list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
 }
-.form-style h1, .form-style a{
-	padding: 20px 0;
-  font-size: 24px;
-	font-weight: bold;
-  font-family: "Times New Roman";
-	text-align: center;
-	margin: -16px -16px 16px -16px;
-  color:#feda6a
+
+#list li {
+  background: var(--surface-light);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  transition: background 0.2s ease;
+  display: inline-block;
 }
+
+.video-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.video-container video {
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: #000;
+  max-width: 100%;
+  height: auto;
+}
+
+.video-controls {
+  margin-bottom: 1rem;
+}
+
 .form-style input[type="text"],
 .form-style input[type="password"],
 .form-style input[type="date"],
@@ -165,24 +289,21 @@ body
 .form-style input[type="time"],
 .form-style input[type="url"],
 .form-style textarea,
-.form-style select
-{
-	-webkit-transition: all 0.30s ease-in-out;
-	-moz-transition: all 0.30s ease-in-out;
-	-ms-transition: all 0.30s ease-in-out;
-	-o-transition: all 0.30s ease-in-out;
-	outline: none;
-	box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	width: 100%;
-	background: #fff;
-	margin-bottom: 4%;
-	border: 1px solid #ccc;
-	padding: 3%;
-	color:#0000a0 ;
-	font: 95% Arial, Helvetica, sans-serif;
+.form-style select {
+  transition: border-color 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--surface-light);
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9375rem;
 }
+
 .form-style input[type="text"]:focus,
 .form-style input[type="password"]:focus,
 .form-style input[type="date"]:focus,
@@ -193,49 +314,60 @@ body
 .form-style input[type="time"]:focus,
 .form-style input[type="url"]:focus,
 .form-style textarea:focus,
-.form-style select:focus
-{
-	box-shadow: 0 0 5px #0000a0;
-	padding: 3%;
-	border: 1px solid #0000a0;
+.form-style select:focus {
+  border-color: var(--text-secondary);
+  padding: 0.75rem 1rem;
 }
 
-.site-form span,label{
-  color: #feda6a;
+.site-form span,
+.site-form label {
+  color: var(--text-primary);
+  font-weight: 500;
 }
-.errorlist{
-    color: red;
-    font-weight: bold;
+
+.errorlist {
+  color: var(--text-primary);
+  font-weight: 500;
+  list-style: none;
+  padding: 0.5rem;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .split {
+    position: static;
+    width: 100%;
+    height: auto;
+    margin-bottom: 2rem;
+  }
+  
+  .left,
+  .right {
+    left: auto;
+    right: auto;
+    margin: 0 0 2rem 0;
+  }
+  
+  .wrapper {
+    padding: 1rem;
+  }
 }
 </style>
-<title>Homepage</title>
 </head>
-<div style="background-color:#404040;color:#feda6a;padding:10 10 1 10;border: 1px #feda6a groove;margin-bottom:0;">
-
-<h1 align=center>Audio To Sign Language Tool</h1>
-</div>
-<br>
 <body>
-<ul id="nav">
-  <li class="li"><a class="active" href="{% url 'home' %}">Home</a></li>
-  <li class="li"><a href="{% url 'animation' %}">Convertor</a></li>
-  {% if not user.is_authenticated %}
-  <li class="li"><a href="{% url 'signup' %}">Sign Up</a></li>
-  {% endif %}
-  {% if user.is_authenticated %}
-  <li class="li"><a href="{% url 'logout' %}">Log-Out</a></li>
-  {% else %}
-    <li class="li"><a href="{% url 'login' %}">Log-in</a></li>
-  {% endif %}
-  <li class="li"><a href="{% url 'contact' %}">Contact</a></li>
-  <li class="li"><a href="{% url 'about' %}">About</a></li>
-</ul>
+<div class="header">
+  <a href="{% url 'home' %}" class="home-button">Home</a>
+  <h1>Text To Sign Language Tool</h1>
+  <div style="width: 80px;"></div>
+</div>
 
-<div class="wrapper" >
+<div class="wrapper">
   {% block content %}
   {% endblock %}
 </div>
-
 
 </body>
 </html>
