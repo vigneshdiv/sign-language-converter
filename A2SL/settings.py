@@ -16,12 +16,46 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Below code added by RanjeetKumbhar01
 import nltk
+import ssl
+
 NLTK_DATA_DIR = os.path.join(BASE_DIR, 'nltk_data')
 nltk.data.path.append(NLTK_DATA_DIR)
-# download nltk utilities
-nltk.download('averaged_perceptron_tagger')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+
+# Fix SSL certificate verification for NLTK downloads
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+# Download nltk utilities with error handling
+def download_nltk_data():
+    """Download NLTK data with SSL error handling"""
+    nltk_data = ['punkt', 'averaged_perceptron_tagger', 'wordnet', 'omw-1.4']
+    for data in nltk_data:
+        try:
+            # Try downloading with SSL context fix
+            nltk.download(data, quiet=True)
+        except Exception as e:
+            # If download fails, check if data already exists
+            try:
+                if data == 'punkt':
+                    nltk.data.find('tokenizers/punkt')
+                elif data == 'averaged_perceptron_tagger':
+                    nltk.data.find('taggers/averaged_perceptron_tagger')
+                elif data == 'wordnet':
+                    nltk.data.find('corpora/wordnet')
+                elif data == 'omw-1.4':
+                    nltk.data.find('corpora/omw')
+                # Data exists, continue
+                continue
+            except LookupError:
+                # Data doesn't exist and download failed
+                print(f"Warning: Could not download NLTK data '{data}': {e}")
+                print("The application may not work correctly without this data.")
+
+download_nltk_data()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
