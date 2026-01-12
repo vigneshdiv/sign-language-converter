@@ -325,8 +325,9 @@
   </div>
 </div>
 
+<script id="words-data" type="application/json">{{ words_json|safe }}</script>
 <script>
-const availableWords = {{ words_json|safe }};
+const availableWords = JSON.parse(document.getElementById('words-data').textContent);
 let currentWord = '';
 let currentOptions = [];
 let score = 0;
