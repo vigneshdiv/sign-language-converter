@@ -1,0 +1,582 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+.reflex-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.game-area {
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.video-display {
+  margin: 2rem 0;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-display video {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: #000;
+}
+
+.timer-display {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 1rem 0;
+  color: var(--text-primary);
+}
+
+.timer-display.warning {
+  color: #ff6b6b;
+}
+
+.timer-display.danger {
+  color: #ff4757;
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.mode-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.mode-btn:hover {
+  background: var(--hover);
+}
+
+.mode-btn.active {
+  background: var(--text-secondary);
+  border-color: var(--text-secondary);
+  color: var(--background);
+}
+
+.answer-section {
+  margin: 2rem 0;
+}
+
+.text-input-mode {
+  display: none;
+}
+
+.text-input-mode.active {
+  display: block;
+}
+
+.text-input-mode input {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-size: 1.125rem;
+  text-align: center;
+}
+
+.multiple-choice-mode {
+  display: none;
+}
+
+.multiple-choice-mode.active {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.choice-btn {
+  padding: 1.25rem;
+  background: var(--surface-light);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.choice-btn:hover {
+  background: var(--hover);
+  border-color: var(--text-secondary);
+}
+
+.choice-btn.correct {
+  background: #2ecc71;
+  border-color: #2ecc71;
+  color: white;
+}
+
+.choice-btn.incorrect {
+  background: #e74c3c;
+  border-color: #e74c3c;
+  color: white;
+}
+
+.choice-btn.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.feedback {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  display: none;
+}
+
+.feedback.show {
+  display: block;
+}
+
+.feedback.correct {
+  background: rgba(46, 204, 113, 0.2);
+  border: 1px solid #2ecc71;
+  color: #2ecc71;
+}
+
+.feedback.incorrect {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+}
+
+.game-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.start-btn, .next-btn {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  min-width: 150px;
+}
+
+.next-btn {
+  display: none;
+}
+
+.next-btn.show {
+  display: inline-block;
+}
+
+.explanation {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface-light);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 768px) {
+  .multiple-choice-mode.active {
+    grid-template-columns: 1fr;
+  }
+  
+  .game-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  .timer-display {
+    font-size: 2rem;
+  }
+}
+</style>
+
+<div class="reflex-container">
+  <div class="game-header">
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">Score</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Streak</div>
+        <div class="stat-value" id="streak">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Round</div>
+        <div class="stat-value" id="round">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-area">
+    <h2 style="margin-bottom: 1.5rem;">ASL Reflex Mode</h2>
+    
+    <div id="startScreen">
+      <p style="margin-bottom: 2rem; color: var(--text-secondary);">
+        Test your ASL recognition skills! Watch the sign and respond quickly.
+      </p>
+      <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="text" id="textModeBtn">Type Answer</button>
+        <button class="mode-btn" data-mode="choice" id="choiceModeBtn">Multiple Choice</button>
+      </div>
+      <div class="game-controls">
+        <button class="start-btn submit" id="startBtn">Start Game</button>
+      </div>
+    </div>
+
+    <div id="gameScreen" style="display: none;">
+      <div class="timer-display" id="timer">5</div>
+      <div class="video-display">
+        <video id="aslVideo" width="500" height="400" autoplay loop muted>
+          <source src="" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="answer-section">
+        <div class="text-input-mode active" id="textInputMode">
+          <input type="text" id="textAnswer" class="mytext" placeholder="Type the word..." autocomplete="off">
+        </div>
+        <div class="multiple-choice-mode" id="choiceMode">
+          <button class="choice-btn" data-choice="0"></button>
+          <button class="choice-btn" data-choice="1"></button>
+          <button class="choice-btn" data-choice="2"></button>
+          <button class="choice-btn" data-choice="3"></button>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="explanation" id="explanation" style="display: none;"></div>
+
+      <div class="game-controls">
+        <button class="next-btn submit" id="nextBtn">Next Sign</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const availableWords = {{ words_json|safe }};
+let currentWord = '';
+let currentOptions = [];
+let score = 0;
+let streak = 0;
+let round = 0;
+let timerInterval = null;
+let timeLeft = 5;
+let gameMode = 'text'; // 'text' or 'choice'
+let gameActive = false;
+let answered = false;
+
+// Mode toggle
+document.getElementById('textModeBtn').addEventListener('click', () => {
+  if (gameActive) return;
+  gameMode = 'text';
+  document.getElementById('textModeBtn').classList.add('active');
+  document.getElementById('choiceModeBtn').classList.remove('active');
+  document.getElementById('textInputMode').classList.add('active');
+  document.getElementById('choiceMode').classList.remove('active');
+});
+
+document.getElementById('choiceModeBtn').addEventListener('click', () => {
+  if (gameActive) return;
+  gameMode = 'choice';
+  document.getElementById('choiceModeBtn').classList.add('active');
+  document.getElementById('textModeBtn').classList.remove('active');
+  document.getElementById('textInputMode').classList.remove('active');
+  document.getElementById('choiceMode').classList.add('active');
+});
+
+// Start game
+document.getElementById('startBtn').addEventListener('click', startGame);
+
+// Text input submission
+document.getElementById('textAnswer').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && gameActive && !answered) {
+    checkAnswer(document.getElementById('textAnswer').value.trim());
+  }
+});
+
+// Multiple choice buttons
+document.querySelectorAll('.choice-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (gameActive && !answered && !this.classList.contains('disabled')) {
+      const selectedIndex = parseInt(this.dataset.choice);
+      checkAnswer(currentOptions[selectedIndex]);
+    }
+  });
+});
+
+// Next button
+document.getElementById('nextBtn').addEventListener('click', nextRound);
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  gameActive = true;
+  nextRound();
+}
+
+function nextRound() {
+  if (availableWords.length === 0) {
+    alert('No ASL videos available!');
+    return;
+  }
+
+  // Reset state
+  answered = false;
+  timeLeft = 5;
+  document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+  document.getElementById('explanation').style.display = 'none';
+  document.getElementById('nextBtn').classList.remove('show');
+  document.getElementById('textAnswer').value = '';
+  document.getElementById('textAnswer').disabled = false;
+  
+  // Clear timer
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+
+  // Select random word
+  currentWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+  
+  // Set video source
+  const video = document.getElementById('aslVideo');
+  const videoPath = `/static/${currentWord}.mp4`;
+  video.src = videoPath;
+  video.load();
+  
+  // Handle video load errors
+  video.onerror = function() {
+    console.error(`Video not found: ${videoPath}`);
+    // Try alternative path or skip to next word
+    if (availableWords.length > 1) {
+      setTimeout(() => nextRound(), 1000);
+    }
+  };
+  
+  video.onloadeddata = function() {
+    video.play().catch(e => console.error('Video play error:', e));
+  };
+
+  // Generate options for multiple choice
+  if (gameMode === 'choice') {
+    generateOptions();
+  }
+
+  // Start timer
+  updateTimer();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimer();
+    if (timeLeft <= 0 && !answered) {
+      handleTimeout();
+    }
+  }, 1000);
+
+  round++;
+  document.getElementById('round').textContent = round;
+}
+
+function generateOptions() {
+  // Create array with correct answer and 3 random wrong answers
+  const wrongAnswers = availableWords.filter(w => w !== currentWord);
+  const shuffled = wrongAnswers.sort(() => 0.5 - Math.random());
+  currentOptions = [currentWord, ...shuffled.slice(0, 3)];
+  currentOptions = currentOptions.sort(() => 0.5 - Math.random());
+  
+  // Update button text
+  document.querySelectorAll('.choice-btn').forEach((btn, index) => {
+    btn.textContent = currentOptions[index];
+    btn.classList.remove('correct', 'incorrect', 'disabled');
+  });
+}
+
+function updateTimer() {
+  const timerEl = document.getElementById('timer');
+  timerEl.textContent = timeLeft;
+  timerEl.classList.remove('warning', 'danger');
+  
+  if (timeLeft <= 2) {
+    timerEl.classList.add('danger');
+  } else if (timeLeft <= 3) {
+    timerEl.classList.add('warning');
+  }
+}
+
+function checkAnswer(userAnswer) {
+  if (answered) return;
+  
+  answered = true;
+  clearInterval(timerInterval);
+  document.getElementById('textAnswer').disabled = true;
+  
+  // Normalize answers for comparison
+  const normalizedUser = userAnswer.toLowerCase().trim();
+  const normalizedCorrect = currentWord.toLowerCase().trim();
+  
+  const isCorrect = normalizedUser === normalizedCorrect;
+  
+  if (isCorrect) {
+    // Correct answer
+    score += 10;
+    streak++;
+    document.getElementById('score').textContent = score;
+    document.getElementById('streak').textContent = streak;
+    
+    const feedback = document.getElementById('feedback');
+    feedback.textContent = '✅ Correct! Great job!';
+    feedback.classList.add('show', 'correct');
+    
+    // Highlight correct choice in multiple choice mode
+    if (gameMode === 'choice') {
+      document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.classList.add('disabled');
+        if (btn.textContent.toLowerCase().trim() === normalizedCorrect) {
+          btn.classList.add('correct');
+        }
+      });
+    }
+  } else {
+    // Wrong answer
+    streak = 0;
+    document.getElementById('streak').textContent = streak;
+    
+    const feedback = document.getElementById('feedback');
+    feedback.textContent = `❌ Wrong! The correct answer is "${currentWord}"`;
+    feedback.classList.add('show', 'incorrect');
+    
+    const explanation = document.getElementById('explanation');
+    explanation.textContent = `Watch the sign again to learn "${currentWord}"`;
+    explanation.style.display = 'block';
+    
+    // Highlight correct and incorrect choices in multiple choice mode
+    if (gameMode === 'choice') {
+      document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.classList.add('disabled');
+        const btnText = btn.textContent.toLowerCase().trim();
+        if (btnText === normalizedCorrect) {
+          btn.classList.add('correct');
+        } else if (btnText === normalizedUser) {
+          btn.classList.add('incorrect');
+        }
+      });
+    }
+    
+    // Replay video
+    const video = document.getElementById('aslVideo');
+    video.currentTime = 0;
+    video.play();
+  }
+  
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function handleTimeout() {
+  if (answered) return;
+  
+  answered = true;
+  clearInterval(timerInterval);
+  document.getElementById('textAnswer').disabled = true;
+  
+  streak = 0;
+  document.getElementById('streak').textContent = streak;
+  
+  const feedback = document.getElementById('feedback');
+  feedback.textContent = `⏱️ Time's up! The answer was "${currentWord}"`;
+  feedback.classList.add('show', 'incorrect');
+  
+  const explanation = document.getElementById('explanation');
+  explanation.textContent = `Watch the sign again to learn "${currentWord}"`;
+  explanation.style.display = 'block';
+  
+  // Disable all choice buttons
+  if (gameMode === 'choice') {
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.classList.add('disabled');
+      if (btn.textContent.toLowerCase().trim() === currentWord.toLowerCase().trim()) {
+        btn.classList.add('correct');
+      }
+    });
+  }
+  
+  // Replay video
+  const video = document.getElementById('aslVideo');
+  video.currentTime = 0;
+  video.play();
+  
+  document.getElementById('nextBtn').classList.add('show');
+}
+</script>
+
+{% endblock %}

@@ -39,7 +39,40 @@ body {
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nav-tab {
+  padding: 0.5rem 1.25rem;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.nav-tab:hover {
+  background: var(--hover);
+}
+
+.nav-tab.active {
+  background: var(--text-secondary);
+  border-color: var(--text-secondary);
+  color: var(--background);
 }
 
 .header h1 {
@@ -52,24 +85,6 @@ body {
   margin: 0;
 }
 
-.home-button {
-  padding: 0.5rem 1rem;
-  background: var(--surface-light);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-weight: 500;
-  font-size: 0.9375rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-family: inherit;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.home-button:hover {
-  background: var(--hover);
-}
 
 .wrapper {
   padding: 2rem;
@@ -359,9 +374,14 @@ table td {
 </head>
 <body>
 <div class="header">
-  <a href="{% url 'home' %}" class="home-button">Home</a>
-  <h1>Text To Sign Language Tool</h1>
-  <div style="width: 80px;"></div>
+  <div style="text-align: center;">
+    <h1>Text To Sign Language Tool</h1>
+    <div class="nav-tabs">
+      <a href="{% url 'home' %}" class="nav-tab {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+      <a href="{% url 'animation' %}" class="nav-tab {% if request.resolver_match.url_name == 'animation' %}active{% endif %}">Text to Sign Language</a>
+      <a href="{% url 'reflex' %}" class="nav-tab {% if request.resolver_match.url_name == 'reflex' %}active{% endif %}">ASL Reflex Mode</a>
+    </div>
+  </div>
 </div>
 
 <div class="wrapper">

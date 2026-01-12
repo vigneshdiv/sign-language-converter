@@ -3,6 +3,9 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import nltk
 from django.contrib.staticfiles import finders
+import os
+import random
+import json
 
 def home_view(request):
 	return render(request,'home.html')
@@ -91,3 +94,46 @@ def animation_view(request):
 		return render(request,'animation.html',{'words':words,'text':text})
 	else:
 		return render(request,'animation.html')
+
+def reflex_view(request):
+	# Get list of available ASL words from static files
+	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+	asset_dir = os.path.join(BASE_DIR, 'Asset')
+	videos_dir = os.path.join(BASE_DIR, 'Videos')
+	
+	available_words = []
+	
+	# Check Asset directory (primary source for static files)
+	if os.path.exists(asset_dir):
+		for file in os.listdir(asset_dir):
+			if file.endswith('.mp4'):
+				word = file.replace('.mp4', '')
+				# Verify file is accessible via static files
+				path = word + ".mp4"
+				if finders.find(path):
+					available_words.append(word)
+	
+	# Also check Videos directory and copy to Asset if needed (for development)
+	# In production, all videos should be in Asset directory
+	if os.path.exists(videos_dir):
+		for file in os.listdir(videos_dir):
+			if file.endswith('.mp4'):
+				word = file.replace('.mp4', '')
+				# Check if already in available_words
+				if word not in available_words:
+					# Try to find via static files
+					path = word + ".mp4"
+					if finders.find(path):
+						available_words.append(word)
+	
+	# Filter out single letters and keep only meaningful words
+	meaningful_words = [w for w in available_words if len(w) > 1 and not w.isdigit()]
+	
+	# If no words found, provide some defaults
+	if not meaningful_words:
+		meaningful_words = ['Hello', 'Thank', 'You', 'Good', 'Happy']
+	
+	# Pass as JSON for JavaScript
+	words_json = json.dumps(meaningful_words)
+	
+	return render(request, 'reflex.html', {'words': meaningful_words, 'words_json': words_json})
